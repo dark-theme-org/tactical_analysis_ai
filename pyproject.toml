@@ -1,12 +1,15 @@
 [tool.poetry]
-name = "app"
+name = "tactical_analysis_ai"
 description = "TacticalAnalysisAI application."
 version = "0.0.0"
 readme = "README.md"
 classifiers = [
     "Programming Language :: Python"
 ]
-authors = []
+authors = [
+  "daiha98",
+  "gabrieldaiha"
+]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<4.0"
