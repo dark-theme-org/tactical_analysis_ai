@@ -1,0 +1,14 @@
+{
+    "flake8.args": [
+        "--config=code_quality/.flake8"
+    ],
+    "pylint.args": [
+        "--rcfile=code_quality/.pylintrc"
+    ],
+    "bandit.args": [
+        "--configfile=code_quality/bandit.yaml"
+    ],
+    "mypy-type-checker.args": [
+        "--config-file=code_quality/mypy.ini"
+    ]
+}

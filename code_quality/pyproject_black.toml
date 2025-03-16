@@ -1,0 +1,20 @@
+[tool.black]
+line-length = 100
+skip-string-normalization = true
+exclude = '''
+^/(
+  (
+      \.git          # root of the project
+    | \.mypy_cache
+    | \.tox
+    | venv
+    | .venv
+    | env
+    | .env
+    | _build
+    | build
+    | dist
+    | migrations
+  )/
+)
+'''
