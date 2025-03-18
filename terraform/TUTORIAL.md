@@ -42,7 +42,7 @@ terraform validate
 terraform plan -out tfplan.out
 ```
 
-### 4. Apply
+### 4. Apply changes
 
 - Finally, you must `apply` the proposed changes according to what was visualized in the **Plan** phase. To do this, simply run the following:
 
