@@ -259,7 +259,3 @@ def update_graph(sec, fig):
 #running app
 if __name__ == '__main__':
     tactical.run()
-
-
-
-
