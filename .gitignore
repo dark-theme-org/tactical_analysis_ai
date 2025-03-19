@@ -178,3 +178,10 @@ data/
 *.csv
 *.parquet
 *.pkl
+
+# Terraform
+tfplan.out
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
+terraform.tfvars

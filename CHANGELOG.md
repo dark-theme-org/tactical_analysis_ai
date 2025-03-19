@@ -11,7 +11,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 Here we write upgrading notes for changes introduced to develop. It's a team effort to make them as straightforward as possible.
 
 ### Added
-- Project *configurations* for properly development.
+- Project *configurations* for properly development;
+- IaC with **Terraform** for programmatic cloud resources.
 
 ### Changed
 -
