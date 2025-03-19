@@ -22,5 +22,3 @@ def process_lineups_file(file):
 file_list = glob.glob(DICT_PATHS['raw_lineups'] + '/*.json') # get the list of all json files in the directory
 
 job = joblib.Parallel(n_jobs=-1, verbose=10)(joblib.delayed(process_lineups_file)(file) for file in file_list) # process all files in parallel
-
-

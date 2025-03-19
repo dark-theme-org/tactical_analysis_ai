@@ -25,5 +25,3 @@ def process_games_file(file):
 file_list = glob.glob(DICT_PATHS['raw_games'] + '/*.json') # get the list of all json files in the directory
 
 joblib.Parallel(n_jobs=-1, verbose=10)(joblib.delayed(process_games_file)(file) for file in file_list) # process all files in parallel
-
-

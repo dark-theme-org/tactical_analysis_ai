@@ -90,7 +90,3 @@ for files in glob.glob(DICT_PATHS['raw_tracking'] + '/*.jsonl.bz2'):
 
     preprocess_tracking_data(game_id)
     print(f'Game {game_id} tracking data has been preprocessed')
-
-
-
-
