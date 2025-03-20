@@ -14,9 +14,9 @@ from utils.plots.pitch import drawPitch
 game_id = 10510
 
 # loading_data
-tracking_df = read_parquet(f"data/cleaned/tracking/{game_id}.parquet")
-games_df = read_parquet(f"data/cleaned/games/{game_id}.parquet")
-lineups_df = read_parquet(f"data/cleaned/lineups/{game_id}.parquet")
+tracking_df = read_parquet(path=f"data/cleaned/tracking/{game_id}.parquet")
+games_df = read_parquet(path=f"data/cleaned/games/{game_id}.parquet")
+lineups_df = read_parquet(path=f"data/cleaned/lineups/{game_id}.parquet")
 
 # getting video id to make the playlist url
 video_id = games_df["videoUrl"].unique()[0].split("/")[-1]

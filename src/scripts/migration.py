@@ -9,20 +9,20 @@ from utils.io.paths import (
     WRITE_SEP,
     path_join,
 )
-from utils.io.io import read_parquet
+from utils.io.io import read_parquet, to_parquet
 
 
 def process_parquets(file):
 
     print(f"Processing file: {file}")
 
-    df = read_parquet(file)
+    df = read_parquet(path=file)
 
     file_dest = WRITE_DATA_PATH + file.replace(READ_DATA_PATH, "").replace(
         READ_SEP, WRITE_SEP
     )
 
-    df.to_parquet(file_dest, index=False)
+    to_parquet(data=df, path=file_dest, index=False)
 
     print(f"{file} processed successfully")
 

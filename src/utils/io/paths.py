@@ -1,18 +1,21 @@
 """Module to standardize paths across the project.
    It allows to easily switch between local and cloud"""
 import os
+from dotenv import load_dotenv, find_dotenv
 
-import dotenv
-
-dotenv.load_dotenv(".env")
+load_dotenv(find_dotenv())
 
 READ_DATA_MODE = os.getenv("READ_DATA_MODE", "local")
 WRITE_DATA_MODE = os.getenv("WRITE_DATA_MODE", "local")
 
+print(
+    f"Running with READ_DATA_MODE={READ_DATA_MODE} and WRITE_DATA_MODE={WRITE_DATA_MODE}"
+)
+
 LOCAL_STORAGE_OPTIONS = {}
 S3_STORAGE_OPTIONS = {
-    "AWS_ACCESS_KEY_ID": os.getenv("AWS_ACCESS_KEY_ID"),
-    "AWS_SECRET_KEY_ID": os.getenv("AWS_SECRET_KEY_ID"),
+    "key": os.getenv("AWS_ACCESS_KEY_ID"),
+    "secret": os.getenv("AWS_SECRET_ACCESS_KEY"),
 }
 READ_STORAGE_OPTIONS = (
     S3_STORAGE_OPTIONS if READ_DATA_MODE == "s3" else LOCAL_STORAGE_OPTIONS
@@ -69,25 +72,12 @@ def path_join(*args, mode="local"):
     return local_path_join(*args)
 
 
-S3_BUCKET = os.getenv("S3_BUCKET")
-LOCAL_BUCKET = os.getenv("LOCAL_BUCKET", "")
+S3_BUCKET = os.getenv("S3_BUCKET").rstrip(S3_SEP)
+LOCAL_BUCKET = os.getenv("LOCAL_BUCKET", "").rstrip(LOCAL_SEP)
+READ_BUCKET = S3_BUCKET if READ_DATA_MODE == "s3" else LOCAL_BUCKET
+WRITE_BUCKET = S3_BUCKET if WRITE_DATA_MODE == "s3" else LOCAL_BUCKET
 
 S3_DATA_PATH = s3_path_join(S3_BUCKET, "data")
 LOCAL_DATA_PATH = local_path_join(LOCAL_BUCKET, "data")
 READ_DATA_PATH = S3_DATA_PATH if READ_DATA_MODE == "s3" else LOCAL_DATA_PATH
 WRITE_DATA_PATH = S3_DATA_PATH if WRITE_DATA_MODE == "s3" else LOCAL_DATA_PATH
-
-LAYERS = ["raw", "cleaned", "curated"]
-FOLDERS = ["tracking", "lineups", "games", "events"]
-
-READ_DICT_PATHS = {
-    f"{layer}_{folder}": path_join(READ_DATA_PATH, layer, folder, mode=READ_DATA_MODE)
-    for layer in LAYERS
-    for folder in FOLDERS
-}
-
-WRITE_DICT_PATHS = {
-    f"{layer}_{folder}": path_join(WRITE_DATA_PATH, layer, folder, mode=WRITE_DATA_MODE)
-    for layer in LAYERS
-    for folder in FOLDERS
-}
