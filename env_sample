@@ -1,0 +1,12 @@
+# set your PYTHONPATH if you need
+PYTHONPATH = <set-src-folder-to-PYTHONPATH>
+
+# can choose for read/write from/to local/s3
+READ_DATA_MODE = <local or s3>
+WRITE_DATA_MODE = <local or s3>
+S3_BUCKET = <s3_bucket_path. ex: s3://...>
+LOCAL_BUCKET = <main folder of your local development. not mandatory>
+
+# set your aws credentials if you need
+AWS_ACCESS_KEY_ID = <AWS_ACCESS_KEY_ID>
+AWS_SECRET_ACCESS_KEY = <AWS_SECRET_ACCESS_KEY>
