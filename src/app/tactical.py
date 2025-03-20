@@ -6,20 +6,17 @@ import plotly.graph_objs as go
 import dash_player
 import numpy as np
 import pandas as pd
-from utils.io.paths import DICT_PATHS, path_join
+
+from utils.io.io import read_parquet
 from utils.plots.pitch import drawPitch
 
 # game selected
 game_id = 10510
 
 # loading_data
-tracking_df = pd.read_parquet(
-    path_join(DICT_PATHS["cleaned_tracking"], f"{game_id}.parquet")
-)
-games_df = pd.read_parquet(path_join(DICT_PATHS["cleaned_games"], f"{game_id}.parquet"))
-lineups_df = pd.read_parquet(
-    path_join(DICT_PATHS["cleaned_lineups"], f"{game_id}.parquet")
-)
+tracking_df = read_parquet(f"data/cleaned/tracking/{game_id}.parquet")
+games_df = read_parquet(f"data/cleaned/games/{game_id}.parquet")
+lineups_df = read_parquet(f"data/cleaned/lineups/{game_id}.parquet")
 
 # getting video id to make the playlist url
 video_id = games_df["videoUrl"].unique()[0].split("/")[-1]
