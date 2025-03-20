@@ -4,7 +4,7 @@ import joblib
 import glob
 import json
 
-from utils.paths import DICT_PATHS
+from utils.io.paths import DICT_PATHS
 
 
 def process_games_file(file):

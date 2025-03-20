@@ -2,7 +2,7 @@ import pandas as pd
 import joblib
 import glob
 
-from utils.paths import DICT_PATHS, path_join, SEP
+from utils.io.paths import DICT_PATHS, path_join, SEP
 
 
 def preprocess_json_column(df: pd.DataFrame, column: str, mode: str = "Smoothed"):
@@ -40,7 +40,7 @@ def preprocess_tracking_data(game_id):
     columns = ["homePlayers", "awayPlayers", "balls"]
     modes = ["Raw"]
 
-    print(f"Read each column data in parallel")
+    print("Read each column data in parallel")
 
     df_full = joblib.Parallel(n_jobs=3)(
         joblib.delayed(preprocess_json_column)(
