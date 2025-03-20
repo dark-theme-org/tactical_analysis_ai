@@ -178,3 +178,6 @@ data/
 *.csv
 *.parquet
 *.pkl
+
+#aws
+.aws
