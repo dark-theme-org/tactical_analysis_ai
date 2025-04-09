@@ -1,22 +1,46 @@
 """Module to standardize io operations. It has support to Pandas and Dask Frameworks"""
+from typing import Union
+
 import dask.dataframe as dd
+import fsspec
 import pandas as pd
 from utils.io.paths import (
+    READ_BUCKET,
     READ_DATA_MODE,
     READ_SEP,
     READ_STORAGE_OPTIONS,
-    READ_BUCKET,
+    WRITE_BUCKET,
     WRITE_DATA_MODE,
     WRITE_SEP,
     WRITE_STORAGE_OPTIONS,
-    WRITE_BUCKET,
     path_join,
 )
 
 FRAMEWORK_DICT = {"pandas": pd, "dask": dd}
 
 
-def read_any(func: str, path: str, framework: str = "pandas", **kwargs):
+def glob(path: str) -> list:
+
+    """
+    Returns a list of files matching the given pattern.
+
+    Args:
+        path (str): The pattern to match files. Can be a glob pattern or a directory.
+    Returns:
+        list: A list of file paths matching the pattern.
+    """
+
+    if READ_DATA_MODE == "s3":
+        fs = fsspec.filesystem("s3", storage_options=READ_STORAGE_OPTIONS)
+    else:
+        fs = fsspec.filesystem("file")
+
+    return fs.glob(path)
+
+
+def read_any(
+    func: str, path: str, framework: str = "pandas", **kwargs
+) -> Union[pd.DataFrame, dd.DataFrame]:
     """
     Reads a file using the specified function and framework.
 
@@ -42,13 +66,13 @@ def read_any(func: str, path: str, framework: str = "pandas", **kwargs):
     return read_func(path, storage_options=READ_STORAGE_OPTIONS, **kwargs)
 
 
-def to_any(func, data, path: str, **kwargs):
+def to_any(func, data: Union[pd.DataFrame, dd.DataFrame], path: str, **kwargs):
     """
     Writes a DataFrame to a file using the specified function.
 
     Parameters:
         func (str): The name of the write function (e.g., 'to_csv', 'to_parquet').
-        data (DataFrame): The DataFrame to be saved.
+        data (Union[pd.DataFrame, dd.DataFrame]): The DataFrame to be saved.
         path (str): The path to write the file. Use / as separator.
         **kwargs: Additional arguments passed to the write function.
 
@@ -64,42 +88,48 @@ def to_any(func, data, path: str, **kwargs):
     return getattr(data, func)(path, storage_options=WRITE_STORAGE_OPTIONS, **kwargs)
 
 
-def read_parquet(path: str, framework: str = "pandas", **kwargs):
+def read_parquet(
+    path: str, framework: str = "pandas", **kwargs
+) -> Union[pd.DataFrame, dd.DataFrame]:
     """
     Reads a Parquet file using the specified framework.
     """
     return read_any(func="read_parquet", path=path, framework=framework, **kwargs)
 
 
-def read_csv(path: str, framework: str = "pandas", **kwargs):
+def read_csv(
+    path: str, framework: str = "pandas", **kwargs
+) -> Union[pd.DataFrame, dd.DataFrame]:
     """
     Reads a CSV file using the specified framework.
     """
     return read_any(func="read_csv", path=path, framework=framework, **kwargs)
 
 
-def read_json(path: str, framework: str = "pandas", **kwargs):
+def read_json(
+    path: str, framework: str = "pandas", **kwargs
+) -> Union[pd.DataFrame, dd.DataFrame]:
     """
     Reads a JSON file using the specified framework.
     """
     return read_any(func="read_json", path=path, framework=framework, **kwargs)
 
 
-def to_parquet(data, path: str, **kwargs):
+def to_parquet(data: Union[pd.DataFrame, dd.DataFrame], path: str, **kwargs):
     """
     Writes a DataFrame to a Parquet file.
     """
     return to_any(func="to_parquet", data=data, path=path, **kwargs)
 
 
-def to_csv(data, path: str, **kwargs):
+def to_csv(data: Union[pd.DataFrame, dd.DataFrame], path: str, **kwargs):
     """
     Writes a DataFrame to a CSV file.
     """
     return to_any(func="to_csv", data=data, path=path, **kwargs)
 
 
-def to_json(data, path: str, **kwargs):
+def to_json(data: Union[pd.DataFrame, dd.DataFrame], path: str, **kwargs):
     """
     Writes a DataFrame to a JSON file.
     """
