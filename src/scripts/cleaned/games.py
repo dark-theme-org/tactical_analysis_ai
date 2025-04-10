@@ -1,19 +1,31 @@
-import pandas as pd
+"""This script processes the games data from JSON files
+and converts them into a cleaned Parquet format."""
 import os
-import joblib
-import glob
 import json
+import joblib
+import pandas as pd
 
-from utils.io.paths import DICT_PATHS
+from utils.io.io import read_json, to_parquet, glob
 
 
 def process_games_file(file):
+
+    """
+    Process a single JSON file containing game data.
+    It reads the JSON file, normalizes the data, and saves it as a Parquet file.
+
+    Args:
+        file (str): The path to the JSON file to process.
+
+    Returns:
+        None
+    """
 
     print(f"Processing file: {file}")
 
     game_id = os.path.basename(file).split(".")[0]
 
-    df_games = json.loads(pd.read_json(file).to_json(orient="records"))
+    df_games = json.loads(read_json(file).to_json(orient="records"))
     df_games = pd.concat(
         [
             pd.json_normalize(df_games).drop(columns=["stadium.pitches"]),
@@ -27,11 +39,11 @@ def process_games_file(file):
     )
     df_games["game.id"] = int(game_id)
 
-    df_games.to_parquet(f'{DICT_PATHS["cleaned_games"]}/{game_id}.parquet', index=False)
+    to_parquet(data=df_games, path=f"data/cleaned/games/{game_id}.parquet", index=False)
 
 
-file_list = glob.glob(
-    DICT_PATHS["raw_games"] + "/*.json"
+file_list = glob(
+    "data/raw/games/*.json"
 )  # get the list of all json files in the directory
 
 joblib.Parallel(n_jobs=-1, verbose=10)(

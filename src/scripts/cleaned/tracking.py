@@ -1,11 +1,22 @@
-import pandas as pd
+"""Preprocess tracking data from JSON files and save as Parquet."""
 import joblib
-import glob
-
-from utils.io.paths import DICT_PATHS, path_join, SEP
+import pandas as pd
+from utils.io.io import read_json, to_parquet, glob
 
 
 def preprocess_json_column(df: pd.DataFrame, column: str, mode: str = "Smoothed"):
+
+    """
+    Preprocess a JSON column in a DataFrame.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing the JSON column.
+        column (str): Name of the JSON column to preprocess.
+        mode (str): Mode for preprocessing. Default is "Smoothed".
+
+    Returns:
+        pd.DataFrame: Preprocessed DataFrame.
+    """
 
     if column != "ballsSmoothed":
         df_players = df.explode(column).reset_index(drop=True)
@@ -25,16 +36,20 @@ def preprocess_json_column(df: pd.DataFrame, column: str, mode: str = "Smoothed"
     return df_players
 
 
-def preprocess_tracking_data(game_id):
+def preprocess_tracking_data(path: str):
 
-    raw_tracking_folder = DICT_PATHS["raw_tracking"]
-    tracking_file = path_join(raw_tracking_folder, f"{game_id}.jsonl.bz2")
+    """
+    Preprocess tracking data from a JSON file and save as Parquet.
 
-    print(tracking_file)
+    Args:
+        path (str): Path to the JSON file.
+    """
 
-    print(f"Read tracking data for game {game_id}...")
+    game_id = path.split("/")[-1].split(".")[0]
 
-    tracking = pd.read_json(tracking_file, lines=True, engine="pyarrow")
+    print(f"Reading {game_id}...")
+
+    tracking = read_json(file_unit, lines=True, engine="pyarrow")
     tracking = tracking.drop_duplicates(subset=["frameNum"])
 
     columns = ["homePlayers", "awayPlayers", "balls"]
@@ -80,15 +95,13 @@ def preprocess_tracking_data(game_id):
 
     df_full["z.raw"] = df_full["z.raw"].fillna(0)
 
-    df_full.to_parquet(path_join(DICT_PATHS["cleaned_tracking"], f"{game_id}.parquet"))
+    to_parquet(data=df_full, path=f"data/cleaned/tracking/{game_id}.parquet")
 
     del tracking
     del df_full
 
+    print(f"Tracking data for game {game_id} has been preprocessed")
 
-for files in glob.glob(DICT_PATHS["raw_tracking"] + "/*.jsonl.bz2"):
 
-    game_id = int(files.split(SEP)[-1].split(".")[0])
-
-    preprocess_tracking_data(game_id)
-    print(f"Game {game_id} tracking data has been preprocessed")
+for file_unit in glob("data/raw/tracking/*.jsonl.bz2"):
+    preprocess_tracking_data(file_unit)
