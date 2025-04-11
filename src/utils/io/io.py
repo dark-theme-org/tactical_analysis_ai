@@ -19,13 +19,14 @@ from utils.io.paths import (
 FRAMEWORK_DICT = {"pandas": pd, "dask": dd}
 
 
-def glob(path: str) -> list:
+def glob(path: str, **kwargs) -> list:
 
     """
     Returns a list of files matching the given pattern.
 
     Args:
         path (str): The pattern to match files. Can be a glob pattern or a directory.
+        **kwargs: Additional arguments passed to the glob function.
     Returns:
         list: A list of file paths matching the pattern.
     """
@@ -35,7 +36,7 @@ def glob(path: str) -> list:
     else:
         fs = fsspec.filesystem("file")
 
-    return fs.glob(path)
+    return fs.glob(path, **kwargs)
 
 
 def read_any(
