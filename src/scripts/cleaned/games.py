@@ -1,14 +1,14 @@
 """This script processes the games data from JSON files
 and converts them into a cleaned Parquet format."""
-import os
 import json
+import os
+
 import joblib
 import pandas as pd
+from utils.io.io import glob, read_json, to_parquet
 
-from utils.io.io import read_json, to_parquet, glob
 
-
-def process_games_file(file):
+def process_games_file(file: str) -> None:
 
     """
     Process a single JSON file containing game data.
@@ -42,10 +42,12 @@ def process_games_file(file):
     to_parquet(data=df_games, path=f"data/cleaned/games/{game_id}.parquet", index=False)
 
 
-file_list = glob(
-    "data/raw/games/*.json"
-)  # get the list of all json files in the directory
+if __name__ == "__main__":
 
-joblib.Parallel(n_jobs=-1, verbose=10)(
-    joblib.delayed(process_games_file)(file) for file in file_list
-)  # process all files in parallel
+    file_list = glob(
+        "data/raw/games/*.json"
+    )  # get the list of all json files in the directory
+
+    joblib.Parallel(n_jobs=-1, verbose=10)(
+        joblib.delayed(process_games_file)(file) for file in file_list
+    )  # process all files in parallel

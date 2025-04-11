@@ -1,10 +1,12 @@
 """Preprocess tracking data from JSON files and save as Parquet."""
 import joblib
 import pandas as pd
-from utils.io.io import read_json, to_parquet, glob
+from utils.io.io import glob, read_json, to_parquet
 
 
-def preprocess_json_column(df: pd.DataFrame, column: str, mode: str = "Smoothed"):
+def preprocess_json_column(
+    df: pd.DataFrame, column: str, mode: str = "Smoothed"
+) -> pd.DataFrame:
 
     """
     Preprocess a JSON column in a DataFrame.
@@ -36,7 +38,7 @@ def preprocess_json_column(df: pd.DataFrame, column: str, mode: str = "Smoothed"
     return df_players
 
 
-def preprocess_tracking_data(path: str):
+def preprocess_tracking_data(path: str) -> None:
 
     """
     Preprocess tracking data from a JSON file and save as Parquet.
@@ -49,7 +51,7 @@ def preprocess_tracking_data(path: str):
 
     print(f"Reading {game_id}...")
 
-    tracking = read_json(file_unit, lines=True, engine="pyarrow")
+    tracking = read_json(path, lines=True, engine="pyarrow")
     tracking = tracking.drop_duplicates(subset=["frameNum"])
 
     columns = ["homePlayers", "awayPlayers", "balls"]
@@ -103,5 +105,7 @@ def preprocess_tracking_data(path: str):
     print(f"Tracking data for game {game_id} has been preprocessed")
 
 
-for file_unit in glob("data/raw/tracking/*.jsonl.bz2"):
-    preprocess_tracking_data(file_unit)
+if __name__ == "__main__":
+
+    for file_unit in glob("data/raw/tracking/*.jsonl.bz2"):
+        preprocess_tracking_data(file_unit)
