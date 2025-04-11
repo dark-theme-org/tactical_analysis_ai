@@ -63,6 +63,11 @@ def read_any(
 
     framework = FRAMEWORK_DICT.get(framework, "pandas")
 
+    read_mode = kwargs.pop("read_mode", "read")
+
+    if read_mode == "scan":
+        func = func.replace("read_", "scan_")
+
     read_func = getattr(framework, func)
 
     return read_func(path, storage_options=READ_STORAGE_OPTIONS, **kwargs)
