@@ -1,6 +1,6 @@
 """Tactical analysis app for visualizing football tracking data."""
 
-from collections import defaultdict
+import time
 import numpy as np
 import pandas as pd
 import dash
@@ -13,10 +13,12 @@ import dash_player
 from utils.io.io import read_parquet
 from utils.plots.pitch import drawPitch
 
+
 # Constants
 GAME_ID = 10510
 DATA_PATH = "data/cleaned"
 FPS_SCALE = 3
+PROFILING = True
 
 
 def load_data(game_id):
@@ -151,14 +153,20 @@ def build_app():
         + merged_df["confidence.raw"],
     )
 
+    # casting ms to the ms_pace to reduce dataframe
     merged_df["videoTimeMs"] = merged_df["videoTimeMs"].astype(int)
     merged_df["videoTimeMs"] = merged_df["videoTimeMs"] // ms_pace * ms_pace
 
-    frame_lookup = defaultdict(pd.DataFrame)
-    for frame, ms_df in merged_df.groupby("videoTimeMs"):
-        max_frame = ms_df["frameNum"].max()
-        ms_df = ms_df[ms_df["frameNum"] == max_frame]
-        frame_lookup[frame] = ms_df
+    # getting only the last frame of each videoTimeMs period
+    merged_df["maxFrameMs"] = merged_df.groupby(["videoTimeMs"])["frameNum"].transform(
+        "max"
+    )
+    merged_df = merged_df[merged_df["frameNum"] == merged_df["maxFrameMs"]].drop(
+        columns=["maxFrameMs"]
+    )
+
+    # Set up efficient lookup using index
+    merged_df = merged_df.set_index("videoTimeMs")
 
     app = dash.Dash(
         __name__,
@@ -167,8 +175,9 @@ def build_app():
         external_stylesheets=[dbc.themes.BOOTSTRAP],
     )
 
-    # Initialize throttling variable
+    # Initialize throttling variables
     last_frame = {"id": None}
+    last_ball_pos = {"x": None, "y": None}
 
     field_layout = go.Layout(
         margin={"l": 0, "r": 0, "b": 0, "t": 0},
@@ -219,21 +228,33 @@ def build_app():
     @app.callback(Output("mean_chart", "figure"), Input("video-player", "currentTime"))
     def update_figure(current_time):
 
+        if PROFILING:
+            start = time.perf_counter()  # ⏱️ Start timing
+
         nonlocal last_frame
 
+        # Avoid updates when time_pace is lower then the ms_pace
         current_time = current_time or 0
-
         frame_number = int((current_time * 1000) // ms_pace) * ms_pace
 
         if frame_number == last_frame["id"]:
             raise dash.exceptions.PreventUpdate
         last_frame["id"] = frame_number
 
-        frame_df = frame_lookup.get(frame_number, pd.DataFrame())
+        try:
+            frame_df = merged_df.loc[frame_number]
+        except KeyError:
+            raise dash.exceptions.PreventUpdate
+
+        # If only one row was returned, make sure it's treated as a DataFrame
+        if isinstance(frame_df, pd.Series):
+            frame_df = frame_df.to_frame().T
 
         if frame_df.empty:
             raise dash.exceptions.PreventUpdate
 
+        # Check if the ball data is present
+        # If not, raise PreventUpdate to skip the callback
         ball_data = frame_df[frame_df["teamGame"] == "balls"]
         if ball_data.empty:
             raise dash.exceptions.PreventUpdate
@@ -241,18 +262,39 @@ def build_app():
         x_ball = ball_data["x_ball"].dropna().values[0]
         y_ball = ball_data["y_ball"].dropna().values[0]
 
-        dx = field_grid["x_int"] - x_ball
-        dy = field_grid["y_int"] - y_ball
-        field_grid["distance_to_ball"] = np.sqrt(dx**2 + dy**2)
-        max_dist = field_grid["distance_to_ball"].max() or 1
-        field_grid["pass_probability"] = 1 - (field_grid["distance_to_ball"] / max_dist)
+        if last_ball_pos["x"] is not None:
+            # Check if the ball has moved significantly
+            # If it has, update the last ball position
+            # If not, skip recalculation
+            if (
+                abs(x_ball - last_ball_pos["x"]) > 0.5
+                or abs(y_ball - last_ball_pos["y"]) > 0.5
+            ):
+                # recalculate pass map
+                last_ball_pos["x"], last_ball_pos["y"] = x_ball, y_ball
+            else:
+                # skip recalculation
+                raise dash.exceptions.PreventUpdate
 
+        grid_x = field_grid["x_int"].values
+        grid_y = field_grid["y_int"].values
+
+        dx = grid_x - x_ball
+        dy = grid_y - y_ball
+        distances = np.sqrt(dx**2 + dy**2)
+        max_dist = np.max(distances) or 1
+        pass_prob = 1 - (distances / max_dist)
+
+        # Switch the scattertype based on the number of points
+        # Use Scattergl for larger datasets for better performance
+        scatter_type = go.Scatter if len(frame_df) < 100 else go.Scattergl
+
+        # Create the scatter plot for the ball and players
+        # Using Patch to update only the data, not the entire figure
         patch = Patch()
         patch["data"] = [
             go.Heatmap(
-                z=field_grid["pass_probability"]
-                .values.reshape((pitch_length + 1, pitch_width + 1))
-                .T,
+                z=pass_prob.reshape((pitch_length + 1, pitch_width + 1)).T,
                 x=field_grid["x_int"].unique(),
                 y=field_grid["y_int"].unique(),
                 colorscale="RdYlGn_r",
@@ -262,7 +304,7 @@ def build_app():
                 showscale=True,
             )
         ] + [
-            go.Scattergl(
+            scatter_type(
                 x=df["x"],
                 y=df["y"],
                 mode="markers",
@@ -274,6 +316,14 @@ def build_app():
             )
             for team, df in frame_df.groupby("teamGame")
         ]
+
+        # Profiling response time
+        if PROFILING:
+            end = time.perf_counter()  # ⏱️ End timing
+            exec_time_ms = (end - start) * 1000
+            print(
+                f"update_figure executed in {exec_time_ms:.2f} ms for frame {frame_number}"
+            )
 
         return patch
 
