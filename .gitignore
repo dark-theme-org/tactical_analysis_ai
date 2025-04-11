@@ -179,5 +179,13 @@ data/
 *.parquet
 *.pkl
 
+#AWS Folders
 #aws
 .aws
+
+# Terraform
+tfplan.out
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
+terraform.tfvars
