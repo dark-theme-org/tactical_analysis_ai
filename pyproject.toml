@@ -10,37 +10,54 @@ authors = [
   "daiha98",
   "gabrieldaiha"
 ]
+packages = [
+  { include = "*", from = "src" }
+]
 
 [tool.poetry.dependencies]
-python = ">=3.10,<4.0"
+python = ">=3.13,<4.0"
 dash = "^3.0.0"
-dash-player = "^1.1.0"
-pandas = "^2.2.3"
-numpy = "^2.2.4"
-plotly = "^6.0.1"
 dash-bootstrap-components = "^2.0.0"
-joblib = "^1.4.2"
-statsbombpy = "^1.16.0"
-s3fs = "^2025.3.0"
-python-dotenv = "^1.0.1"
-pyarrow = "^19.0.1"
+dash-player = "^1.1.0"
 dask = "^2025.2.0"
+joblib = "^1.4.2"
+numpy = "^2.2.4"
+pandas = "^2.2.3"
+plotly = "^6.0.1"
 polars = "^1.27.1"
+pyarrow = "^19.0.1"
+python-dotenv = "^1.0.1"
+s3fs = "^2025.3.0"
+statsbombpy = "^1.16.0"
 
-[tool.poetry.dev-dependencies]
+# Notebooks dependencies
+ipykernel = { version = "^6.29.0", optional = true }
+matplotlib = { version = "^3.10.0", optional = true }
+seaborn = { version = "^0.13.0", optional = true }
+
+[tool.poetry.extras]
+nbs = [
+  "ipykernel",
+  "matplotlib",
+  "seaborn"
+]
+
+[tool.poetry.group.dev.dependencies]
 pre-commit = "^2.20.0"
-black = "^22.6.0"
 autoflake = "^2.2.1"
+bandit = "^1.7.1"
+black = "^22.6.0"
 flake8 = "^6.1.0"
-pylint = "^3.3.6"
 isort = "^5.10.1"
 mypy = "^1.4.1"
-bandit = "^1.7.1"
+pylint = "^3.3.6"
 
 [[tool.poetry.source]]
 name = "PyPI"
-priority = "default"
+priority = "primary"
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
+requires = [
+  "poetry-core>=1.0.0"
+]
 build-backend = "poetry.core.masonry.api"
