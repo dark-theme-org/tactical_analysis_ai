@@ -7,7 +7,7 @@
 
 ## Python Versions
 
-![](https://img.shields.io/badge/python-_>=3.10_|_<4.0_-blue)
+![](https://img.shields.io/badge/python-_>=3.13_|_<4.0_-blue)
 
 
 ### **Motivation**
@@ -63,12 +63,12 @@
 
 ### 3. Poetry
 
-   - If don't have `poetry` already, [install it](https://python-poetry.org/docs/#osx--linux--bashonwindows-install-instructions). For this project, we're using `poetry-1.5.1`. Check your poetry version with `poetry --version` before... if version is different, then clear cache, update version and start development!
+   - If don't have `poetry` already, [install it](https://python-poetry.org/docs/#osx--linux--bashonwindows-install-instructions). For this project, we're using `poetry-2.1.2`. Check your poetry version with `poetry --version` before... if version is different, then clear cache, update version and start development!
 
    ```bash
    poetry cache clear --all .
-   poetry self update 1.5.1
-   poetry lock --no-update
+   poetry self update 2.1.2
+   poetry lock --regenerate
    rm -rf ~/Library/Caches/pypoetry/artifacts/
    rm -rf ~/Library/Caches/pypoetry/cache/
    rm -rf ~/Library/Caches/pypoetry/virtualenvs/
