@@ -101,8 +101,8 @@ repos:
         name: check commit message prefix
         description: >
           'Commit messages must have the following prefixes:
-          ["analysis", "change", "feature", "fix", "refactor"].'
+          ["analysis", "change", "feature", "fix", "refactor", "test"].'
         language: pygrep
-        entry: '^(analysis|change|feature|fix|refactor): .*$'
+        entry: '^(analysis|change|feature|fix|refactor|test): .*$'
         args: [--multiline, --negate]
         stages: [commit-msg]

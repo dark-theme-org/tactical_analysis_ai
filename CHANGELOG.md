@@ -12,7 +12,15 @@ Here we write upgrading notes for changes introduced to develop. It's a team eff
 
 ### Added
 - Project *configurations* for properly development;
-- IaC with **Terraform** for programmatic cloud resources.
+    - **Markdown** templates;
+    - **IDE** settings;
+    - Github and local **dot** files;
+    - Configs to guarantee **Code Quality** using `pre-commit` hooks;
+    - Managing dependencies using `pyproject.toml` and `poetry`;
+- Init IaC with **Terraform** for programmatic cloud resources;
+    - **S3 Bucket**;
+    - **IAM User**;
+- Foundation `.py` *modules* as baseline for development.
 
 ### Changed
 -
